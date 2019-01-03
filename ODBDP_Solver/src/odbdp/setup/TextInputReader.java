@@ -11,7 +11,10 @@ public final class TextInputReader {
 	private int[] indexCosts, indexMemory;
 	
 	private int[][] confToIndexes,confToQueries;
-	
+
+	public int[] confTotalCost;
+	public int[] confTotalMemory;
+
 	public int getnConf() {
 		return nConf;
 	}
@@ -43,7 +46,15 @@ public final class TextInputReader {
 	public int[][] getConfToQueries() {
 		return confToQueries;
 	}
-	
+
+	public int[] getConfTotalCost() {
+		return confTotalCost;
+	}
+
+	public int[] getConfTotalMemory() {
+		return confTotalMemory;
+	}
+
 	public void readFile (String f) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String s;
@@ -108,23 +119,24 @@ public final class TextInputReader {
 		
 		for (int j = 0; j < nConf; j++) {
 			s = br.readLine();
-			int upper;			//we save an upper index value in order to create substrings
-			int column = 0;		//we save the column index of the incoming value
-			int z = 0;			//loop index
-			while (z < s.length()){
+			int upper;            //we save an upper index value in order to create substrings
+			int column = 0;        //we save the column index of the incoming value
+			int z = 0;            //loop index
+			while (z < s.length()) {
 				upper = z;
 				while (upper < s.length() - 1 && s.charAt(upper) != ' ')
 					upper++;
-				if (upper != z && upper != s.length() -1)
+				if (upper != z && upper != s.length() - 1)
 					confToQueries[j][column] = Integer.parseInt(s.substring(z, upper));
-				else 
-					confToQueries[j][column] = Integer.parseInt(s.substring(z, upper+1));
-				z = upper+1;
+				else
+					confToQueries[j][column] = Integer.parseInt(s.substring(z, upper + 1));
+				z = upper + 1;
 				column++;
 			}
-			
 		}
 		
 		br.close();
 	}
+
+
 }
