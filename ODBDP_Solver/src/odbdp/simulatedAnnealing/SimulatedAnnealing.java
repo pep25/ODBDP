@@ -11,28 +11,23 @@ public class SimulatedAnnealing {
     private double testProbability;
     private int[][] bestSolution;
     private int bestObjectiveFunction;
-    private int[][] initialSolution;
     private int[][] currentSolution;
     private int[][] confGains;
     private int[][] confToIndexes;
-    private int initialObjectiveFunction;
     private int currentObjectiveFunction;
     private int nConf;
     private int nQueries;
     private int nIndex;
-
-//    private int randIndexNeighbour;
     private int[] queryServed;
     private int[] confUsed;
     private int[] indexUsed;
     private int[] indexCosts;
     private int[] indexMemory;
     private int totalMemory;
-    private int initialCost;
-
-//    private ArrayList<int[][]> neighbourhood = new ArrayList<>();
-//    private ArrayList<Integer> neighbourhoodObj = new ArrayList<>();
-
+    private int currentCost;
+    private int bestCost;
+    private int[] currentConfUsed;
+    private int[] currentIndexUsed;
 
 
     public SimulatedAnnealing(int nConf, int nQueries, int nIndex,int[][] initialSolution, int initialObjectiveFunction, int initialCost,
@@ -47,13 +42,11 @@ public class SimulatedAnnealing {
         this.bestSolution = new int[nConf][nQueries];
         this.bestObjectiveFunction = initialObjectiveFunction;
         this.testProbability = Math.random();
-        this.initialSolution = initialSolution;
         this.currentSolution = new int[nConf][nQueries];
         for(int i = 0; i<nConf; i++){
             System.arraycopy(initialSolution[i],0,currentSolution[i],0,nQueries);
             System.arraycopy(initialSolution[i],0,bestSolution[i],0,nQueries);
         }
-        this.initialObjectiveFunction = initialObjectiveFunction;
         this.currentObjectiveFunction = initialObjectiveFunction;
         this.queryServed = queryServed;
         this.confUsed = confUsed;
@@ -62,7 +55,9 @@ public class SimulatedAnnealing {
         this.indexCosts = indexCosts;
         this.indexMemory = indexMemory;
         this.totalMemory = totalMemory;
-        this.initialCost = initialCost;
+        this.bestCost = initialCost;
+        this.currentConfUsed = new int[nConf];
+        this.currentIndexUsed = new int[nIndex];
     }
 
     // starting algorithm method
@@ -72,14 +67,20 @@ public class SimulatedAnnealing {
             int[][] neighbour = this.generateNeighbour();
             currentSolution = neighbour;
             if (this.bestObjectiveFunction - this.currentObjectiveFunction < 0) {
-                bestObjectiveFunction = currentObjectiveFunction;
-                bestSolution = neighbour;
-                temperature *= alpha;
+                this.bestObjectiveFunction = currentObjectiveFunction;
+                this.bestSolution = neighbour;
+                this.bestCost = this.currentCost;
+                System.arraycopy(currentIndexUsed,0,indexUsed,0,nIndex);
+                System.arraycopy(currentConfUsed,0,confUsed,0,nConf);
+                this.temperature *= alpha;
 
             } else if (this.calculateProbability(this.currentObjectiveFunction) > this.testProbability) {
-                bestObjectiveFunction = currentObjectiveFunction;
-                bestSolution = neighbour;
-                temperature *= alpha;
+                this.bestObjectiveFunction = currentObjectiveFunction;
+                this.bestSolution = neighbour;
+                this.bestCost = this.currentCost;
+                System.arraycopy(currentIndexUsed,0,indexUsed,0,nIndex);
+                System.arraycopy(currentConfUsed,0,confUsed,0,nConf);
+                this.temperature *= alpha;
             }
             i++;
         }
@@ -88,7 +89,7 @@ public class SimulatedAnnealing {
     }
 
     private double calculateProbability(int objectiveFunction){
-        return Math.exp(((float)-this.currentObjectiveFunction - objectiveFunction)/this.temperature);
+        return Math.exp(((float)-this.bestObjectiveFunction - objectiveFunction)/this.temperature);
     }
 
     private boolean acceptance(){
@@ -97,20 +98,24 @@ public class SimulatedAnnealing {
 
     private int[][] generateNeighbour(){
         int[][] currentNeighbour = new int[nConf][nQueries];
-
-        int objectiveFunction = this.currentObjectiveFunction;
+        int objectiveFunction = 0;
+        int cost = 0;
         boolean feaseble = false;
         int i;
         int tmp;
-        for( i = 0; i<nConf; i++){
-            System.arraycopy(currentSolution[i],0,currentNeighbour[i],0,nQueries);
-        }
-        while(!feaseble) {
 
+
+        while(!feaseble) {
+            for( i = 0; i<nConf; i++){
+                System.arraycopy(bestSolution[i],0,currentNeighbour[i],0,nQueries);
+            }
+            System.arraycopy(confUsed,0,currentConfUsed,0,nConf);
+            System.arraycopy(indexUsed,0,currentIndexUsed,0,nIndex);
+            cost = 0;
+            objectiveFunction = this.bestObjectiveFunction;
             int iRand1 = 0;
             int iRand2 = 0;
             int jRand = 0;
-            int cost = 0;
             int memory = 0;
             boolean taken1 = false,taken2 = false;
 
@@ -130,11 +135,11 @@ public class SimulatedAnnealing {
 
             for (int j = 0; j < nQueries; j++) {
                 if (currentNeighbour[iRand1][j] == 1) {
-                    if (confUsed[iRand1] == 0) {
-                        confUsed[iRand1]++;
+                    if (currentConfUsed[iRand1] == 0) {
+                        currentConfUsed[iRand1]++;
                         for(i = 0; i<nIndex; i++){
                             if (confToIndexes[iRand1][i] == 1) {
-                                indexUsed[i]++;
+                                currentIndexUsed[i]++;
                             }
 
                         }
@@ -143,11 +148,11 @@ public class SimulatedAnnealing {
 
                 }
                 if (currentNeighbour[iRand2][j] == 1) {
-                    if (confUsed[iRand2] == 0) {
-                        confUsed[iRand2]++;
+                    if (currentConfUsed[iRand2] == 0) {
+                        currentConfUsed[iRand2]++;
                         for(i = 0; i<nIndex; i++){
                             if (confToIndexes[iRand2][i] == 1) {
-                                indexUsed[i]++;
+                                currentIndexUsed[i]++;
                             }
 
                         }
@@ -158,27 +163,27 @@ public class SimulatedAnnealing {
             }
 
             if (!taken1) {
-                confUsed[iRand1]--;
+                currentConfUsed[iRand1]--;
                 for (i = 0; i < nIndex; i++) {
                     if (confToIndexes[iRand1][i] == 1) {
-                        indexUsed[i]--;
+                        currentIndexUsed[i]--;
                     }
 
                 }
             }
 
             if (!taken2) {
-                confUsed[iRand2]--;
+                currentConfUsed[iRand2]--;
                 for (i = 0; i < nIndex; i++) {
                     if (confToIndexes[iRand2][i] == 1) {
-                        indexUsed[i]--;
+                        currentIndexUsed[i]--;
                     }
 
                 }
             }
 
             for(i=0; i<nIndex;i++){
-                if(indexUsed[i] != 0){
+                if(currentIndexUsed[i] != 0){
                     cost+= indexCosts[i];
                     memory+= indexMemory[i];
                 }
@@ -186,15 +191,17 @@ public class SimulatedAnnealing {
 
             if(memory<totalMemory){
                 feaseble = true;
+                objectiveFunction -= cost - bestCost;
+                objectiveFunction += currentNeighbour[iRand1][jRand] ==  0 ? -confGains[iRand1][jRand] : confGains[iRand1][jRand];
+                objectiveFunction += currentNeighbour[iRand2][jRand] ==  0 ? -confGains[iRand2][jRand] : confGains[iRand2][jRand];
             }
 
-            objectiveFunction -= cost - initialCost;
-            objectiveFunction += currentNeighbour[iRand1][jRand] ==  0 ? -confGains[iRand1][jRand] : confGains[iRand1][jRand];
-            objectiveFunction += currentNeighbour[iRand2][jRand] ==  0 ? -confGains[iRand2][jRand] : confGains[iRand2][jRand];
+
 
         }
 
-
+        currentObjectiveFunction = objectiveFunction;
+        currentCost = cost;
         return currentNeighbour;
     }
 
