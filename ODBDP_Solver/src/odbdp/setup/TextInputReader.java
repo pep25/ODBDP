@@ -61,24 +61,28 @@ public final class TextInputReader {
 		
 		//number of queries
 		s = br.readLine();
+		s.trim();
 		int i = s.lastIndexOf(" ");
 		nQueries = Integer.parseInt(s.substring(i+1, s.length()));
 		
 		
 		//number of indexes
 		s = br.readLine();
+		s.trim();
 		i = s.lastIndexOf(" ");
 		nIndexes = Integer.parseInt(s.substring(i+1, s.length()));
 		
 		
 		//number of configurations
 		s = br.readLine();
+		s.trim();
 		i = s.lastIndexOf(" ");
 		nConf = Integer.parseInt(s.substring(i+1, s.length()));
 		
 		
 		//total available memory
 		s = br.readLine();
+		s.trim();
 		i = s.lastIndexOf(" ");
 		memory = Integer.parseInt(s.substring(i+1, s.length()));
 		
@@ -95,6 +99,7 @@ public final class TextInputReader {
 		//configuration indexes matrix
 		for (int j = 0; j < nConf; j++) {
 			s = br.readLine();
+			s.trim();
 			for (int z = 0; z < s.length(); z = z+2)
 				confToIndexes[j][z/2] = Integer.parseInt(s.substring(z, z+1));
 		}
@@ -104,6 +109,7 @@ public final class TextInputReader {
 		br.readLine();	//infoless line
 		for (int j = 0; j < nIndexes; j++) {	
 			s = br.readLine();
+			s.trim();
 			indexCosts[j] = Integer.parseInt(s);
 		}
 		
@@ -112,6 +118,7 @@ public final class TextInputReader {
 		br.readLine();	//infoless line
 		for (int j = 0; j < nIndexes; j++) {	
 			s = br.readLine();
+			s.trim();
 			indexMemory[j] = Integer.parseInt(s);
 		}
 		
@@ -119,6 +126,7 @@ public final class TextInputReader {
 		
 		for (int j = 0; j < nConf; j++) {
 			s = br.readLine();
+			s.trim();
 			int upper;            //we save an upper index value in order to create substrings
 			int column = 0;        //we save the column index of the incoming value
 			int z = 0;            //loop index
@@ -137,6 +145,4 @@ public final class TextInputReader {
 		
 		br.close();
 	}
-
-
 }
