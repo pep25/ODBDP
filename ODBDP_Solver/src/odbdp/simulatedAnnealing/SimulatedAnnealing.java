@@ -1,5 +1,8 @@
 package odbdp.simulatedAnnealing;
 
+import odbdp.setup.TextOutputWriter;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -143,6 +146,12 @@ public class SimulatedAnnealing {
             for (int i = 0; i < nConf; i++) {
                 System.arraycopy(this.currentSolution[i], 0, this.bestSolution[i], 0, nQueries);
             }
+            try {
+                TextOutputWriter.writeSolution(this.bestSolution,"solution.odbdp");
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
 
         }
     }
