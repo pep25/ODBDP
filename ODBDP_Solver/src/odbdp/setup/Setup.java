@@ -22,12 +22,12 @@ public class Setup {
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-		int[][] test = {{1,0,1},{0,1,0},{0,0,0},{0,0,0}};
+		int[][] test = {{1,1,1},{0,0,0},{0,0,0},{0,0,0}};
 		int[] queryServed = {1,1,1};
-		int[] confUsed = {1,1,0,0};
-		int[] indexUsed = {0,2,2,0,1};
+		int[] confUsed = {1,0,0,0};
+		int[] indexUsed = {0,1,1,0,1};
 		SimulatedAnnealing algorithm = new SimulatedAnnealing(t.getnConf(),t.getnQueries(),t.getnIndexes(),test
-				,-17,38,t.getConfToQueries(),queryServed,confUsed,indexUsed,
+				,-9,38,t.getConfToQueries(),confUsed,indexUsed,
 				t.getConfToIndexes(),t.getIndexCosts(),t.getIndexMemory(),t.getMemory());
 		algorithm.start();
 
